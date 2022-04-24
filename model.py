@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine  
-from sqlalchemy import Column, String  
+from sqlalchemy import ForeignKey, PrimaryKeyConstraint, create_engine, null  
+from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy.orm import sessionmaker
 
@@ -11,31 +11,77 @@ base = declarative_base()
 class Empleado(base):  
     __tablename__ = 'empleado'
 
-    nombre = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String, nullable=False)
     apellidoPaterno = Column(String, nullable=False)
     apellidoMaterno = Column(String, nullable=False)
-    matricula = Column(String)
-    puesto = Column(String)
+    matricula = Column(String, nullable=False, index=True, unique=True)
+    puesto = Column(String, nullable=False)
+
+class Perfil(base):
+    __tablename__ = 'perfil'
+
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String, nullable=False)
+    descripcion = Column(String)
+
+class Movimiento(base):
+    __tablename__ = 'movimiento'
+
+    id = Column(Integer, primary_key=True)
+    id_empleado = Column(Integer, ForeignKey('empleado.id'))
+    tipo_movimiento = Column(String, nullable=False)
+    tiempo = Column(DateTime, nullable=False)
+
+class Usuario(base):
+    __tablename__ = 'usuario'
+
+    id = Column(Integer, primary_key=True)
+    user_name = Column(String, nullable=False)
+    password = Column(String, nullable=False)
+
+class Permisos(base):
+    __tablename__ = 'permisos'
+
+    id = Column(Integer, primary_key=True)
+    id_perfil = Column(Integer, ForeignKey('perfil.id'))
+    permiso = Column(String, nullable=False)
+
+class Config(base):
+    __tablename__ = 'config'
+
+    id = Column(Integer, primary_key=True)
+    nombre =  Column(String, nullable=False)
+    valor =  Column(String, nullable=False)
+
+class Fotografias(base):
+    __tablename__ = 'fotografias'
+
+    id = Column(Integer, primary_key=True)
+    id_empleado = Column(Integer, ForeignKey('empleado.id'))
+    ruta = Column(String, nullable=False)
 
 Session = sessionmaker(db)  
 session = Session()
 
 base.metadata.create_all(db)
 
-# Create 
-doctor_strange = Film(title="Doctor Strange", director="Scott Derrickson", year="2016")  
-session.add(doctor_strange)  
-session.commit()
 
-# Read
-films = session.query(Film)  
-for film in films:  
-    print(film.title)
 
-# Update
-doctor_strange.title = "Some2016Film"  
-session.commit()
+# # Create 
+# doctor_strange = Film(title="Doctor Strange", director="Scott Derrickson", year="2016")  
+# session.add(doctor_strange)  
+# session.commit()
 
-# Delete
-session.delete(doctor_strange)  
-session.commit()  
+# # Read
+# films = session.query(Film)  
+# for film in films:  
+#     print(film.title)
+
+# # Update
+# doctor_strange.title = "Some2016Film"  
+# session.commit()
+
+# # Delete
+# session.delete(doctor_strange)  
+# session.commit()  
